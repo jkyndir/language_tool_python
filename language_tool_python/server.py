@@ -257,9 +257,10 @@ class LanguageTool:
                             print(response.content)
                         raise LanguageToolError(response.content.decode())
             except (IOError, http.client.HTTPException) as e:
-                if self._remote is False:
-                    self._terminate_server()
-                    self._start_local_server()
+                # Since any error encountered during the multiple-processes mode will already be handled after the multiprocess is done, then when running into error, don't restart the instance, since it will slow down the process when I use the same LT instance in multiple-processes mode.
+                # if self._remote is False:
+                #     self._terminate_server()
+                #     self._start_local_server()
                 if n + 1 >= num_tries:
                     raise LanguageToolError('{}: {}'.format(self._url, e))
 
@@ -377,6 +378,7 @@ class LanguageTool:
 
 class LanguageToolPublicAPI(LanguageTool):
     """Language tool client of the official API."""
+
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args, remote_server='https://languagetool.org/api/', **kwargs
